@@ -275,6 +275,10 @@ impl TlsConnector {
         init_trust();
 
         let mut connector = SslConnector::builder(SslMethod::tls())?;
+        if let Some(cipher_list) = &builder.cipher_list {
+            connector.set_cipher_list(cipher_list.as_str())?;
+            connector.set_ciphersuites(cipher_list.as_str())?;
+        }
         if let Some(ref identity) = builder.identity {
             connector.set_certificate(&identity.0.cert)?;
             connector.set_private_key(&identity.0.pkey)?;

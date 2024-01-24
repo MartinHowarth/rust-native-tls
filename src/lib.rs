@@ -353,6 +353,7 @@ pub struct TlsConnectorBuilder {
     accept_invalid_hostnames: bool,
     use_sni: bool,
     disable_built_in_roots: bool,
+    cipher_list: Option<String>,
     #[cfg(feature = "alpn")]
     alpn: Vec<String>,
 }
@@ -455,6 +456,17 @@ impl TlsConnectorBuilder {
         self
     }
 
+    /// Sets the list of ciphers to be used for all TLS versions.
+    ///
+    /// A value of `None` indicates the defaults of the `openssl` crate are to be used.
+    ///
+    /// The cipher_list must be provided in the openssl format (e.g. "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256").
+    /// See https://www.openssl.org/docs/manmaster/man1/ciphers.html for details on the format.
+    pub fn with_cipher_list(&mut self, cipher_list: String) -> &mut TlsConnectorBuilder {
+        self.cipher_list = Some(cipher_list.to_owned());
+        self
+    }
+
     /// Creates a new `TlsConnector`.
     pub fn build(&self) -> Result<TlsConnector> {
         let connector = imp::TlsConnector::new(self)?;
@@ -501,6 +513,7 @@ impl TlsConnector {
             accept_invalid_certs: false,
             accept_invalid_hostnames: false,
             disable_built_in_roots: false,
+            cipher_list: None,
             #[cfg(feature = "alpn")]
             alpn: vec![],
         }
